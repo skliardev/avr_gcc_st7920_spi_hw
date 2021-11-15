@@ -8,6 +8,7 @@
 #include "lcd.h"
 
 static const char string_init[] PROGMEM = {
+	//0b00110110,	// Extended function set + graphic display on
 	0b00000110,		// Entry mode set, increased cursor	0b0000_01{I/D}{S}
 	//0b00000001,		// Display clear
 	0b00000010,		// Display home
@@ -20,9 +21,9 @@ static const char string_hello[] PROGMEM =  "Hello world!-_-";
 int main(void) {
 	CPU_init();
 	SPI_init();
-	SPI_send(LCD_CMD, string_init, 3);
-	SPI_send(LCD_DATA, string_family, 16);
-	SPI_send(LCD_DATA, string_hello, 15);
+	LCD_send(LCD_CMD, string_init, 3);
+	LCD_send(LCD_DATA, string_family, 16);
+	LCD_send(LCD_DATA, string_hello, 15);
 		
     while (1) { _delay_us(1); }
 }
