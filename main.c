@@ -7,23 +7,92 @@
 #include "config.h"
 #include "lcd.h"
 
-static const char string_init[] PROGMEM = {
-	//0b00110110,	// Extended function set + graphic display on
-	0b00000110,		// Entry mode set, increased cursor	0b0000_01{I/D}{S}
-	//0b00000001,		// Display clear
-	0b00000010,		// Display home
-	0b00001100		// Display on, cursor on and blink off 0b0000_1{d}{c}{b}
-};
-
-static const char string_family[] PROGMEM = "Ksusha and Dima!";
-static const char string_hello[] PROGMEM =  "Hello world!-_-";
+//#define lcd_buffer_flash_debug 1
 
 int main(void) {
-	CPU_init();
-	SPI_init();
-	LCD_send(LCD_CMD, string_init, 3);
-	LCD_send(LCD_DATA, string_family, 16);
-	LCD_send(LCD_DATA, string_hello, 15);
-		
-    while (1) { _delay_us(1); }
+	LCD_init();
+	while (1) {
+		/* Test 1 */
+		for (uint8_t vstr = 0; vstr <= 63; ++vstr) {
+			for (uint8_t hstr = 0; hstr <= 15; ++hstr) {
+				if((vstr+hstr)&0x01) lcd_buffer[vstr][hstr] = 0;
+				else lcd_buffer[vstr][hstr] = 0xff;
+			}
+		}
+		LCD_buffer_flash(0,0,128,64);
+		_delay_ms(1000);
+		/* Test 2 */
+		for (uint8_t vstr = 0; vstr <= 63; ++vstr) {
+			for (uint8_t hstr = 0; hstr <= 15; ++hstr) {
+				if((vstr+hstr)&0x01) lcd_buffer[vstr][hstr] = 0xff;
+				else lcd_buffer[vstr][hstr] = 0;
+			}
+		}
+		LCD_buffer_flash(0,0,128,64);
+		_delay_ms(1000);
+		/* Test 3 */
+		LCD_clean(0xff);
+		LCD_buffer_flash(0,0,128,64);
+		_delay_ms(1000);
+		/* Test 4 */
+		LCD_clean(0);
+		LCD_buffer_flash(0,0,31,31);
+		_delay_ms(1000);
+		LCD_buffer_flash(32,32,63,63);
+		_delay_ms(1000);
+		LCD_buffer_flash(64,0,95,31);
+		_delay_ms(1000);
+		LCD_buffer_flash(96,32,127,63);
+		_delay_ms(1000);
+		/* Test 5 */
+		LCD_buffer_flash(0, 0, 128, 64);
+		LCD_clean(0xff);
+		LCD_buffer_flash(0,0,31,31);
+		_delay_ms(1000);
+		LCD_buffer_flash(32,32,63,63);
+		_delay_ms(1000);
+		LCD_buffer_flash(64,0,95,31);
+		_delay_ms(1000);
+		LCD_buffer_flash(96,32,127,63);
+		_delay_ms(1000);
+		/* Test 6 */
+		LCD_clean(0);
+		LCD_buffer_flash(0,0,128,64);
+		_delay_ms(1000);
+		LCD_clean(0xff);
+		/* first  - обновление первого байта в паре, второй не затрагивает */
+		LCD_buffer_flash(0,0,1,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(16,0,17,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(32,0,33,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(48,0,49,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(64,0,65,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(80,0,81,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(96,0,97,7);
+		_delay_ms(1000);
+		LCD_buffer_flash(112,0,114,7);
+		_delay_ms(1000);
+		/* second - обновление второго байта в паре вызывает обновление первого и второго байта */
+		LCD_buffer_flash(8,16,15,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(24,16,25,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(40,16,44,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(56,16,60,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(72,16,73,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(88,16,89,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(104,16,110,23);
+		_delay_ms(1000);
+		LCD_buffer_flash(120,16,127,23);
+		_delay_ms(1000);	
+    }
 }
