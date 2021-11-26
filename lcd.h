@@ -9,7 +9,7 @@
 
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-//#include "font8x8.h"
+#include "font8x8.h"
 
 #define lcd_init_size 2
 static const char lcd_init[] PROGMEM = {
@@ -90,6 +90,44 @@ void LCD_buffer_flash(uint8_t st_x, uint8_t st_y, uint8_t fn_x, uint8_t fn_y) {
 	LCD_CS_STOP();
 }
 
+typedef union {
+	uint16_t ch;
+	struct {
+		uint8_t chl;
+		uint8_t chh;
+	};
+} uchar;
+
+/* адресация экрана начинается с нуля, отсутствуют проверки count_chars, координат и высоты шрифта */
+void print_char(uint8_t x_pos, uint8_t y_pos, uint8_t font_height, uint8_t count_chars, const char* str) {
+	uint8_t offset = x_pos & 7; // получаем смещение кратное 8
+	uint8_t x_min = x_pos >> 3;
+	uint8_t x_max = x_min + count_chars;
+	if (x_max > 127) x_max = 127;
+	uint8_t y_max = y_pos + font_height;
+	uint8_t ch_code;
+	uchar ch_line;
+	
+	
+	for (int x = x_min; x < x_max; ++x) {
+		ch_code = *(str);
+		
+		for (int y = y_pos, yy = 0; y < y_max; ++y, ++yy) {
+			ch_line.ch = 0;
+			/* читаем новое значение + делаем смещение */
+			ch_line.chh = pgm_read_byte(&(Font8x8Table[ch_code][yy]));
+			ch_line.ch >>= offset;
+			/* применяем новое значение */
+			lcd_buffer[y][x] = 0;
+			lcd_buffer[y][x] |= ch_line.chh;
+			if(offset && (x + 1) < 16) {
+				lcd_buffer[y][x + 1] = 0; 
+				lcd_buffer[y][x + 1] |= ch_line.chl;
+			}
+		}
+		str++;
+	}
+}
 
 
 #endif /* LCD_H_ */

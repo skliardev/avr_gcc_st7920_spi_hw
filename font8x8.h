@@ -5,8 +5,7 @@
 
 #include <avr/pgmspace.h>
 	
-static const char Font8x8Table[256][8] PROGMEM =
-{
+const char Font8x8Table[256][8] PROGMEM = {
 	0x00,  /*  ........  */
 	0x00,  /*  ........  */
 	0x00,  /*  ........  */
