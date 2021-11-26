@@ -111,17 +111,14 @@ void print_char(uint8_t x_pos, uint8_t y_pos, uint8_t font_height, uint8_t count
 	
 	for (int x = x_min; x < x_max; ++x) {
 		ch_code = *(str);
-		
 		for (int y = y_pos, yy = 0; y < y_max; ++y, ++yy) {
 			ch_line.ch = 0;
 			/* читаем новое значение + делаем смещение */
 			ch_line.chh = pgm_read_byte(&(Font8x8Table[ch_code][yy]));
 			ch_line.ch >>= offset;
 			/* применяем новое значение */
-			lcd_buffer[y][x] = 0;
 			lcd_buffer[y][x] |= ch_line.chh;
-			if(offset && (x + 1) < 16) {
-				lcd_buffer[y][x + 1] = 0; 
+			if(offset && (x + 1) < 16) { 
 				lcd_buffer[y][x + 1] |= ch_line.chl;
 			}
 		}

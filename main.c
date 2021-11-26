@@ -96,14 +96,18 @@ int main(void) {
 // 		_delay_ms(1000);
 // 		LCD_buffer_flash(120,16,127,23);
 // 		_delay_ms(1000);
-		
-		LCD_clean(0);
-		const char str[] = "Привет мир!";
-		for(int i=0; i < 16; i++) {
-			print_char(i, 10, 8, 12, str);
+	
+		for(int i=0; i < 32; i+=2) {
+			LCD_clean(0);
+			print_char(i, i, 8, 5, "Вниз!");
 			LCD_buffer_flash(0,0,128,64);
-			_delay_ms(2000);
+			_delay_ms(500);		
 		}
-		
+		for(int i=31; i >= 0; i-=2) {
+			LCD_clean(0);
+			print_char(i, i, 8, 5, "Вверх!");
+			LCD_buffer_flash(0,0,128,64);
+			_delay_ms(500);
+		}
     }
 }
